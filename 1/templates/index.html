@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البحث عن مشروع</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5ddd5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .language-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-history, .results {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fafafa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        li h3 {
+            margin: 0;
+        }
+
+        li p {
+            margin: 5px 0;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">البحث عن مشروع</h1>
+        <div class="language-selector">
+            <label for="language">اختر اللغة:</label>
+            <select id="language" onchange="setLanguage()">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
+                <option value="ru">Русский</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="hi">हिन्दी</option>
+                <option value="bn">বাংলা</option>
+                <option value="tr">Türkçe</option>
+                <option value="vi">Tiếng Việt</option>
+            </select>
+        </div>
+        <form id="searchForm" action="/search" method="get">
+            <input id="inputField" type="text" name="topic" placeholder="Enter project name" required>
+            <button id="searchButton" type="submit">Search</button>
+        </form>
+        <div class="search-history">
+            <h2 id="history-title">سجل البحث</h2>
+            <ul>
+                {% for entry in search_history %}
+                    <li>{{ entry.topic }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="results">
+            {% if results %}
+                <h2 id="results-title">النتائج لـ "{{ topic }}"</h2>
+                <ul>
+                    {% for repo in results %}
+                        <li>
+                            <h3><a href="{{ repo.url }}" target="_blank">{{ repo.name }}</a></h3>
+                            <p>{{ repo.description }}</p>
+                            <a href="{{ repo.download_url }}" download>Download ZIP</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        const translations = {
+            ar: {
+                title: "البحث عن مشروع",
+                placeholder: "أدخل اسم المشروع",
+                searchButton: "بحث",
+                historyTitle: "سجل البحث",
+                resultsTitle: "النتائج لـ"
+            },
+            en: {
+                title: "Project Search",
+                placeholder: "Enter project name",
+                searchButton: "Search",
+                historyTitle: "Search History",
+                resultsTitle: "Results for"
+            },
+            fr: {
+                title: "Recherche de Projet",
+                placeholder: "Entrez le nom du projet",
+                searchButton: "Rechercher",
+                historyTitle: "Historique des Recherches",
+                resultsTitle: "Résultats pour"
+            },
+            es: {
+                title: "Búsqueda de Proyecto",
+                placeholder: "Ingrese el nombre del proyecto",
+                searchButton: "Buscar",
+                historyTitle: "Historial de Búsqueda",
+                resultsTitle: "Resultados para"
+            },
+            de: {
+                title: "Projektsuche",
+                placeholder: "Projektname eingeben",
+                searchButton: "Suchen",
+                historyTitle: "Suchverlauf",
+                resultsTitle: "Ergebnisse für"
+            },
+            it: {
+                title: "Ricerca di Progetto",
+                placeholder: "Inserisci il nome del progetto",
+                searchButton: "Cerca",
+                historyTitle: "Cronologia delle Ricerche",
+                resultsTitle: "Risultati per"
+            },
+            pt: {
+                title: "Pesquisa de Projeto",
+                placeholder: "Digite o nome do projeto",
+                searchButton: "Pesquisar",
+                historyTitle: "Histórico de Pesquisas",
+                resultsTitle: "Resultados para"
+            },
+            ru: {
+                title: "Поиск проекта",
+                placeholder: "Введите название проекта",
+                searchButton: "Поиск",
+                historyTitle: "История поиска",
+                resultsTitle: "Результаты для"
+            },
+            zh: {
+                title: "项目搜索",
+                placeholder: "输入项目名称",
+                searchButton: "搜索",
+                historyTitle: "搜索历史",
+                resultsTitle: "搜索结果"
+            },
+            ja: {
+                title: "プロジェクト検索",
+                placeholder: "プロジェクト名を入力",
+                searchButton: "検索",
+                historyTitle: "検索履歴",
+                resultsTitle: "検索結果"
+            },
+            ko: {
+                title: "프로젝트 검색",
+                placeholder: "프로젝트 이름 입력",
+                searchButton: "검색",
+                historyTitle: "검색 기록",
+                resultsTitle: "검색 결과"
+            },
+            hi: {
+                title: "प्रोजेक्ट खोजें",
+                placeholder: "प्रोजेक्ट का नाम दर्ज करें",
+                searchButton: "खोजें",
+                historyTitle: "खोज इतिहास",
+                resultsTitle: "परिणाम"
+            },
+            bn: {
+                title: "প্রকল্প অনুসন্ধান",
+                placeholder: "প্রকল্পের নাম লিখুন",
+                searchButton: "অনুসন্ধান",
+                historyTitle: "অনুসন্ধান ইতিহাস",
+                resultsTitle: "ফলাফল"
+            },
+            tr: {
+                title: "Proje Arama",
+                placeholder: "Proje adını girin",
+                searchButton: "Ara",
+                historyTitle: "Arama Geçmişi",
+                resultsTitle: "Sonuçlar"
+            },
+            vi: {
+                title: "Tìm kiếm Dự án",
+                placeholder: "Nhập tên dự án",
+                searchButton: "Tìm kiếm",
+                historyTitle: "Lịch sử Tìm kiếm",
+                resultsTitle: "Kết quả"
+            }
+        };
+
+        function setLanguage() {
+            const language = document.getElementById('language').value;
+            document.getElementById('title').innerText = translations[language].title;
+            document.getElementById('inputField').placeholder = translations[language].placeholder;
+            document.getElementById('searchButton').innerText = translations[language].searchButton;
+            document.getElementById('history-title').innerText = translations[language].historyTitle;
+            document.getElementById('results-title').innerText = `${translations[language].resultsTitle} "{{ topic }}"`;
+        }
+    </script>
+</body>
+</html>
